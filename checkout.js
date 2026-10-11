@@ -80,6 +80,11 @@ if (!cart.length) {
 };
 
 const initializeCheckout = async () => {
+  if (window.location.hostname.endsWith('github.io')) {
+    renderCheckout();
+    return;
+  }
+
   try {
     products = await apiRequest('/api/products');
     localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(products));
@@ -90,6 +95,31 @@ const initializeCheckout = async () => {
 };
 
 initializeCheckout();
+
+const saveDemoOrder = (orderData) => {
+  const subtotal = cart.reduce((sum, item) => {
+    const product = products.find((productItem) => productItem.id === item.id);
+    return sum + (product ? Number(product.price) * item.qty : 0);
+  }, 0);
+  const localOrder = {
+    ...orderData,
+    id: `DEMO-${Date.now()}`,
+    status: 'Pedido de demonstração',
+    total: subtotal,
+    items: cart.map((item) => {
+      const product = products.find((productItem) => productItem.id === item.id);
+      return { id: item.id, name: product ? product.name : 'Pneu', qty: item.qty, price: product ? Number(product.price) : 0 };
+    }),
+    createdAt: new Date().toISOString()
+  };
+  const savedOrders = JSON.parse(localStorage.getItem(ORDER_STORAGE_KEY) || '[]');
+  savedOrders.push(localOrder);
+  localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(savedOrders));
+  localStorage.setItem('fl_pneus_last_order_id', localOrder.id);
+  saveCart([]);
+  checkoutForm.reset();
+  window.location.href = 'status.html';
+};
 
 checkoutForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -123,6 +153,11 @@ checkoutForm.addEventListener('submit', async (event) => {
     items: cart.map((item) => ({ id: item.id, qty: item.qty }))
   };
 
+  if (window.location.hostname.endsWith('github.io')) {
+    saveDemoOrder(orderData);
+    return;
+  }
+
   try {
     const order = await apiRequest('/api/orders', {
       method: 'POST',
@@ -134,28 +169,7 @@ checkoutForm.addEventListener('submit', async (event) => {
     checkoutForm.reset();
     window.location.href = 'status.html';
   } catch (error) {
-    const subtotal = cart.reduce((sum, item) => {
-      const product = products.find((productItem) => productItem.id === item.id);
-      return sum + (product ? Number(product.price) * item.qty : 0);
-    }, 0);
-    const localOrder = {
-      ...orderData,
-      id: `DEMO-${Date.now()}`,
-      status: 'Pedido de demonstração',
-      total: subtotal,
-      items: cart.map((item) => {
-        const product = products.find((productItem) => productItem.id === item.id);
-        return { id: item.id, name: product ? product.name : 'Pneu', qty: item.qty, price: product ? Number(product.price) : 0 };
-      }),
-      createdAt: new Date().toISOString()
-    };
-    const savedOrders = JSON.parse(localStorage.getItem(ORDER_STORAGE_KEY) || '[]');
-    savedOrders.push(localOrder);
-    localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(savedOrders));
-    localStorage.setItem('fl_pneus_last_order_id', localOrder.id);
-    saveCart([]);
-    checkoutForm.reset();
-    window.location.href = 'status.html';
+    saveDemoOrder(orderData);
   }
 });
 

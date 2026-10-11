@@ -14,11 +14,13 @@ if (!orderId) {
   orderStatusContent.innerHTML = '<div class="empty-state">Nenhum pedido foi encontrado.</div>';
 } else {
   let latestOrder = demoOrder;
-  try {
-    const response = await fetch(`/api/orders/${encodeURIComponent(orderId)}`);
-    if (response.ok) latestOrder = await response.json();
-  } catch (error) {
-    console.info('Exibindo pedido salvo nesta demonstração.');
+  if (!window.location.hostname.endsWith('github.io')) {
+    try {
+      const response = await fetch(`/api/orders/${encodeURIComponent(orderId)}`);
+      if (response.ok) latestOrder = await response.json();
+    } catch (error) {
+      console.info('Exibindo pedido salvo nesta demonstração.');
+    }
   }
 
   if (!latestOrder) {
