@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout FL Pneus</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div class="brand" aria-label="FL Pneus logo">
+          <span class="brand-mark">FL</span>
+          <div class="brand-text">
+            <strong>FL Pneus</strong>
+            <small>Compra com retirada na loja</small>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="Menu principal">
+          <a href="index.html">Voltar à loja</a>
+        </nav>
+
+        <div class="header-actions">
+          <a class="btn btn-secondary" href="index.html">Continuar comprando</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="checkout-page">
+      <section class="checkout-shell">
+        <div class="container checkout-grid">
+          <div class="checkout-panel">
+            <span class="eyebrow">Resumo do pedido</span>
+            <h1>Finalizar compra</h1>
+            <div id="checkoutItems" class="checkout-items"></div>
+            <div class="checkout-total-box">
+              <span>Total</span>
+              <strong id="checkoutTotal">R$ 0,00</strong>
+            </div>
+          </div>
+
+          <div class="checkout-panel">
+            <span class="eyebrow">Dados do cliente</span>
+            <h2>Simular pedido</h2>
+
+            <form id="checkoutForm" class="checkout-form">
+              <label>
+                Nome completo
+                <input type="text" name="name" placeholder="Seu nome" required />
+              </label>
+
+              <label>
+                WhatsApp
+                <input type="tel" name="phone" placeholder="(11) 99999-9999" required />
+              </label>
+
+              <label>
+                Veículo
+                <input type="text" name="vehicle" placeholder="Ex: Corolla 2021" required />
+              </label>
+
+              <label>
+                Forma de atendimento
+                <select name="serviceType">
+                  <option value="Retirada na loja">Retirada na loja</option>
+                  <option value="Montagem na loja">Montagem na loja</option>
+                  <option value="Retirada + montagem">Retirada + montagem</option>
+                </select>
+              </label>
+
+              <p class="payment-note">Demonstração: pagamento e disponibilidade serão combinados diretamente na loja.</p>
+
+              <label>
+                Observações
+                <textarea name="notes" rows="4" placeholder="Descreva detalhes, modelo do pneu ou preferência de horário"></textarea>
+              </label>
+
+              <button type="submit" class="btn btn-primary">Registrar pedido de demonstração</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>© <span id="year"></span> FL Pneus. Todos os direitos reservados.</p>
+      </div>
+    </footer>
+
+    <script src="checkout.js"></script>
+  </body>
+</html>

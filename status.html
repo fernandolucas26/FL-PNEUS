@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Status do Pedido | FL Pneus</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div class="brand" aria-label="FL Pneus logo">
+          <span class="brand-mark">FL</span>
+          <div class="brand-text">
+            <strong>FL Pneus</strong>
+            <small>Pedido confirmado</small>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="menu do status">
+          <a href="index.html">Loja</a>
+          <a href="checkout.html">Carrinho</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="status-page">
+      <section class="container status-shell">
+        <div class="status-card">
+          <span class="eyebrow">Pedido enviado</span>
+          <h1>Seu pedido foi registrado com sucesso!</h1>
+          <p class="status-copy">Demonstração: o pedido foi salvo somente neste navegador. A loja não foi notificada e nenhum pagamento foi realizado.</p>
+
+          <div id="orderStatusContent" class="status-content"></div>
+
+          <div class="status-actions">
+            <a class="btn btn-primary" href="index.html">Voltar para a loja</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="status.js"></script>
+  </body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="FL Pneus oferece pneus, rodas e serviços de instalação com atendimento rápido e confiança."
+    />
+    <title>FL Pneus | Venda e Instalação de Pneus</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div class="brand" aria-label="FL Pneus logo">
+          <span class="brand-mark">FL</span>
+          <div class="brand-text">
+            <strong>FL Pneus</strong>
+            <small>Segurança em cada giro</small>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="Menu principal">
+          <a href="#produtos">Produtos</a>
+          <a href="#servicos">Serviços</a>
+          <a href="#sobre">Sobre</a>
+          <a href="#depoimentos">Depoimentos</a>
+        </nav>
+
+        <div class="header-actions">
+          <button class="btn btn-secondary cart-button" type="button">
+            Carrinho (<span id="cartCount">0</span>)
+          </button>
+          <a class="btn btn-primary" href="checkout.html">Finalizar compra</a>
+        </div>
+        <button class="menu-toggle" aria-label="Abrir menu">☰</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <span class="badge">Pneus premium</span>
+            <h1>Tração, conforto e segurança para cada estrada.</h1>
+            <p>
+              Encontre os melhores pneus para seu carro, SUV, moto ou caminhonete com
+              qualidade comprovada, preços justos e instalação especializada.
+            </p>
+
+            <div class="cta-row">
+              <a class="btn btn-primary" href="#produtos">Ver ofertas</a>
+              <a class="btn btn-secondary" href="#servicos">Como funciona</a>
+            </div>
+
+            <ul class="hero-stats" aria-label="Estatísticas da loja">
+              <li>
+                <strong>+20k</strong>
+                <span>pneus vendidos</span>
+              </li>
+              <li>
+                <strong>4.9/5</strong>
+                <span>avaliação</span>
+              </li>
+              <li>
+                <strong>+1k</strong>
+                <span>montagens na loja</span>
+              </li>
+            </ul>
+
+            <div class="trust-bar" aria-label="Marcas premium">
+              <span>BRIDGESTONE</span>
+              <span>PIRELLI</span>
+              <span>MICHELIN</span>
+              <span>CONTINENTAL</span>
+            </div>
+          </div>
+
+          <div class="hero-visual" aria-hidden="true">
+            <div class="tire-scene">
+              <div class="tire-ring"></div>
+              <div class="hero-card">
+                <small>Oferta do dia</small>
+                <strong>R$ 489</strong>
+                <span>BRIDGESTONE 205/55R16</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="features" id="servicos">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow">Vantagens</span>
+            <h2>Atendimento pensado para você rodar com confiança</h2>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature">
+              <div class="feature-icon">🏪</div>
+              <h3>Retirada na loja</h3>
+              <p>Você busca o pneu na loja física e retira na hora com atendimento rápido.</p>
+            </article>
+
+            <article class="feature">
+              <div class="feature-icon">🛡️</div>
+              <h3>Garantia</h3>
+              <p>Produtos com garantia oficial e suporte pós-venda confiável.</p>
+            </article>
+
+            <article class="feature">
+              <div class="feature-icon">🔧</div>
+              <h3>Instalação</h3>
+              <p>Equipe especializada em balanceamento, alinhamento e troca.</p>
+            </article>
+
+            <article class="feature">
+              <div class="feature-icon">💬</div>
+              <h3>Consultoria</h3>
+              <p>Orientação técnica para escolher o pneu ideal para seu uso.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="products" id="produtos">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow">Produtos</span>
+            <h2>Escolha o pneu ideal para o seu veículo</h2>
+          </div>
+
+          <div class="filter-bar" aria-label="Filtros de categoria">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="carro">Carros</button>
+            <button class="filter-btn" data-filter="suv">SUV</button>
+            <button class="filter-btn" data-filter="moto">Motos</button>
+            <button class="filter-btn" data-filter="caminhao">Caminhonetes</button>
+            <input type="search" id="searchInput" class="search-input" placeholder="Buscar pneu por nome ou marca" aria-label="Buscar pneu" />
+          </div>
+
+          <div class="stock-summary" aria-label="Resumo do estoque">
+            <div>
+              <span>Total em estoque</span>
+              <strong id="totalStock">0 unidades</strong>
+            </div>
+            <div>
+              <span>Últimas peças</span>
+              <strong id="lowStockCount">0 itens</strong>
+            </div>
+          </div>
+
+          <div class="product-grid" id="productGrid"></div>
+
+          <aside class="cart-panel" id="cartPanel" aria-label="Carrinho de compras">
+            <div class="cart-header">
+              <h3>Carrinho</h3>
+              <button type="button" class="cart-close" id="cartClose">×</button>
+            </div>
+            <div id="cartItems" class="cart-items"></div>
+            <div class="cart-footer">
+              <div class="cart-total">
+                <span>Total</span>
+                <strong id="cartTotal">R$ 0,00</strong>
+              </div>
+              <div class="cart-actions">
+                <button type="button" class="btn btn-secondary" id="clearCartBtn">Limpar carrinho</button>
+                <a class="btn btn-primary" id="whatsappOrder" href="#" target="_blank" rel="noreferrer">
+                  Enviar no WhatsApp
+                </a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="steps" id="sobre">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow">Como funciona</span>
+            <h2>Compra simples em três etapas</h2>
+          </div>
+
+          <div class="step-grid">
+            <article class="step">
+              <div class="step-number">1</div>
+              <h3>Escolha seu pneu</h3>
+              <p>Compare modelos, tamanhos e marcas de acordo com seu veículo e uso.</p>
+            </article>
+
+            <article class="step">
+              <div class="step-number">2</div>
+              <h3>Solicite orçamento</h3>
+              <p>Receba uma cotação clara com instalação, balanceamento e garantia.</p>
+            </article>
+
+            <article class="step">
+              <div class="step-number">3</div>
+              <h3>Retire e monte na loja</h3>
+              <p>Finalize a retirada e faça a montagem diretamente no nosso estabelecimento físico.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="testimonials" id="depoimentos">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow">Depoimentos</span>
+            <h2>Clientes que confiam na FL Pneus</h2>
+          </div>
+
+          <div class="testimonial-grid">
+            <article class="testimonial">
+              <p class="quote">
+                “Excelente atendimento, pneu chegou rápido e a instalação foi impecável.”
+              </p>
+              <div class="person">
+                <div class="avatar">JR</div>
+                <div>
+                  <strong>João R.</strong>
+                  <small>Cliente há 2 anos</small>
+                </div>
+              </div>
+            </article>
+
+            <article class="testimonial">
+              <p class="quote">
+                “Encontrei a melhor opção para o meu SUV e o preço foi bem acima da média.”
+              </p>
+              <div class="person">
+                <div class="avatar">AM</div>
+                <div>
+                  <strong>Ana M.</strong>
+                  <small>Cliente recorrente</small>
+                </div>
+              </div>
+            </article>
+
+            <article class="testimonial">
+              <p class="quote">
+                “Profissionais muito cuidadosos e a consultoria foi essencial para escolher o melhor pneu.”
+              </p>
+              <div class="person">
+                <div class="avatar">CL</div>
+                <div>
+                  <strong>Caio L.</strong>
+                  <small>Motociclista</small>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>© <span id="year"></span> FL Pneus. Todos os direitos reservados.</p>
+        <div class="footer-links">
+          <a href="#produtos">Produtos</a>
+          <a href="#servicos">Serviços</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
+
