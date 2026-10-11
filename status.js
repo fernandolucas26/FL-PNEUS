@@ -3,6 +3,14 @@ const formatPrice = (value) => new Intl.NumberFormat('pt-BR', {
   currency: 'BRL'
 }).format(value);
 
+const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;'
+})[character]);
+
 const orderStatusContent = document.getElementById('orderStatusContent');
 
 const orderId = localStorage.getItem('fl_pneus_last_order_id');
@@ -34,27 +42,27 @@ if (!orderId) {
       </div>
       <div class="order-status-row">
         <span>Status</span>
-        <strong>${latestOrder.status || 'Novo'}</strong>
+        <strong>${escapeHTML(latestOrder.status || 'Novo')}</strong>
       </div>
       <div class="order-status-row">
         <span>Cliente</span>
-        <strong>${latestOrder.customerName}</strong>
+        <strong>${escapeHTML(latestOrder.customerName)}</strong>
       </div>
       <div class="order-status-row">
         <span>Veículo</span>
-        <strong>${latestOrder.vehicle}</strong>
+        <strong>${escapeHTML(latestOrder.vehicle)}</strong>
       </div>
       <div class="order-status-row">
         <span>Tipo</span>
-        <strong>${latestOrder.serviceType || 'Retirada na loja'}</strong>
+        <strong>${escapeHTML(latestOrder.serviceType || 'Retirada na loja')}</strong>
       </div>
       <div class="order-status-row">
         <span>Pagamento</span>
-        <strong>${latestOrder.paymentMethod || 'PIX'} • ${latestOrder.paymentLabel || `em ${latestOrder.installments || 1}x`}</strong>
+        <strong>${escapeHTML(latestOrder.paymentMethod || 'PIX')} • ${escapeHTML(latestOrder.paymentLabel || `em ${latestOrder.installments || 1}x`)}</strong>
       </div>
       <div class="order-status-row">
         <span>Itens</span>
-        <strong>${latestOrder.items.map((item) => `${item.name} (${item.qty}x)`).join(', ')}</strong>
+        <strong>${latestOrder.items.map((item) => `${escapeHTML(item.name)} (${Number(item.qty)}x)`).join(', ')}</strong>
       </div>
       <div class="order-status-row total-row">
         <span>Total</span>

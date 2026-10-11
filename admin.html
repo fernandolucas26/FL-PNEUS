@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin FL Pneus</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div class="brand" aria-label="FL Pneus logo">
+          <span class="brand-mark">FL</span>
+          <div class="brand-text">
+            <strong>FL Pneus</strong>
+            <small>Área administrativa</small>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="Menu administrativo">
+          <a href="index.html">Loja</a>
+          <a href="checkout.html">Checkout</a>
+          <a href="#pedidos">Pedidos</a>
+        </nav>
+
+        <div class="header-actions">
+          <span class="session-badge" id="loginStatus">Logado como administrador</span>
+          <button type="button" class="btn btn-secondary" id="logoutButton">Sair</button>
+          <a class="btn btn-primary" href="index.html">Voltar ao site</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-page">
+      <section class="admin-dashboard">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow">Painel do responsável</span>
+            <h2>Controle de estoque e pedidos</h2>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="panel-box">
+              <h3>Adicionar ou editar pneu</h3>
+              <form id="adminProductForm" class="admin-form compact-form">
+                <div class="form-grid">
+                  <label>
+                    Nome do pneu
+                    <input type="text" name="name" placeholder="Ex: RoadMax 205/55R16" required />
+                  </label>
+
+                  <label>
+                    Categoria
+                    <select name="category" required>
+                      <option value="carro">Carro</option>
+                      <option value="suv">SUV</option>
+                      <option value="moto">Moto</option>
+                      <option value="caminhao">Caminhonete</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    Marca
+                    <input type="text" name="brand" placeholder="Ex: Bridgestone" required />
+                  </label>
+
+                  <label>
+                    Valor
+                    <input type="number" name="price" placeholder="499" min="1" step="0.01" required />
+                  </label>
+
+                  <label>
+                    Estoque
+                    <input type="number" name="stock" placeholder="12" min="0" required />
+                  </label>
+
+                  <label class="full-width">
+                    Foto do pneu
+                    <input type="file" name="image" id="productImage" accept="image/*" />
+                  </label>
+
+                  <div class="image-preview-wrap full-width" id="imagePreviewWrap" hidden>
+                    <img id="imagePreview" class="admin-image-preview" alt="Prévia da foto do pneu" />
+                  </div>
+
+                  <label class="full-width">
+                    Destaque
+                    <input type="text" name="badge" placeholder="Ex: Novo ou Mais vendido" />
+                  </label>
+                </div>
+
+                <div class="admin-actions">
+                  <button type="submit" class="btn btn-primary" id="adminSubmitButton">Salvar pneu</button>
+                  <button type="button" class="btn btn-secondary" id="resetAdminForm">Cancelar</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="panel-box">
+              <h3>Estoque atual</h3>
+              <div id="inventoryList" class="inventory-list"></div>
+            </div>
+          </div>
+
+          <div class="panel-box" id="pedidos">
+            <div class="panel-header">
+              <h3>Pedidos recebidos</h3>
+              <span id="ordersCount">0 pedidos</span>
+            </div>
+            <div id="ordersList" class="orders-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>© <span id="year"></span> FL Pneus. Todos os direitos reservados.</p>
+      </div>
+    </footer>
+
+    <script src="admin.js"></script>
+  </body>
+</html>

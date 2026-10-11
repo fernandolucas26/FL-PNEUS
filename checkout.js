@@ -7,6 +7,14 @@ const formatPrice = (value) => new Intl.NumberFormat('pt-BR', {
   currency: 'BRL'
 }).format(value);
 
+const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;'
+})[character]);
+
 const getProducts = () => {
   const saved = localStorage.getItem(PRODUCT_STORAGE_KEY);
   if (!saved) return [];
@@ -61,7 +69,7 @@ if (!cart.length) {
     return `
       <div class="checkout-item">
         <div>
-          <strong>${product.name}</strong>
+          <strong>${escapeHTML(product.name)}</strong>
           <small>${item.qty} unidade(s)</small>
         </div>
         <span>${formatPrice(Number(product.price) * item.qty)}</span>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login do Admin | FL Pneus</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div class="brand" aria-label="FL Pneus logo">
+          <span class="brand-mark">FL</span>
+          <div class="brand-text">
+            <strong>FL Pneus</strong>
+            <small>Área restrita</small>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="Menu do login">
+          <a href="index.html">Loja</a>
+          <a href="checkout.html">Checkout</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="auth-page">
+      <section class="container auth-card-wrap">
+        <div class="auth-card">
+          <span class="eyebrow">Administração</span>
+          <h1>Entrar no painel</h1>
+          <p class="auth-subtitle">Acesse o controle de estoque, pedidos e produtos.</p>
+
+          <form id="loginForm" class="auth-form">
+            <label>
+              Usuário
+              <input type="text" name="username" placeholder="admin" value="admin" required />
+            </label>
+
+            <label>
+              Senha
+              <input type="password" name="password" placeholder="Digite a senha" required />
+            </label>
+
+            <button type="submit" class="btn btn-primary">Entrar</button>
+          </form>
+
+        </div>
+      </section>
+    </main>
+
+    <script src="login.js"></script>
+  </body>
+</html>

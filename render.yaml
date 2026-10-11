@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: fl-pneus-admin
+    runtime: python
+    plan: free
+    region: ohio
+    buildCommand: python -m py_compile server.py
+    startCommand: python server.py
+    healthCheckPath: /api/health
+    envVars:
+      - key: FL_DATA_DIR
+        value: /tmp/fl-pneus-data
+      - key: FL_ADMIN_USER
+        sync: false
+      - key: FL_ADMIN_PASSWORD
+        sync: false

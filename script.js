@@ -72,6 +72,14 @@ const formatPrice = (value) => new Intl.NumberFormat('pt-BR', {
   currency: 'BRL'
 }).format(value);
 
+const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;'
+})[character]);
+
 function getProducts() {
   const savedProducts = localStorage.getItem(STORAGE_KEY);
   if (!savedProducts) {
@@ -147,17 +155,17 @@ function renderProducts() {
     const isDisabled = stockValue <= 0;
 
     return `
-      <article class="product-card" data-category="${product.category}">
+      <article class="product-card" data-category="${escapeHTML(product.category)}">
         <div class="product-visual">
-          <div class="product-badge">${product.badge || 'Em destaque'}</div>
+          <div class="product-badge">${escapeHTML(product.badge || 'Em destaque')}</div>
           ${product.image
-            ? `<img class="product-image" src="${product.image}" alt="${product.name}" loading="lazy" />`
+            ? `<img class="product-image" src="${escapeHTML(product.image)}" alt="${escapeHTML(product.name)}" loading="lazy" />`
             : '<div class="tire"></div>'}
         </div>
         <div class="product-body">
-          <h3>${product.name}</h3>
-          <span class="product-brand">${product.brand || 'Marca'}</span>
-          <p>${product.description || 'Pneu com excelente desempenho e durabilidade.'}</p>
+          <h3>${escapeHTML(product.name)}</h3>
+          <span class="product-brand">${escapeHTML(product.brand || 'Marca')}</span>
+          <p>${escapeHTML(product.description || 'Pneu com excelente desempenho e durabilidade.')}</p>
           <div class="product-meta">
             <span class="stars">★★★★★</span>
             <span class="price">${formatPrice(Number(product.price || 0))}</span>
@@ -188,9 +196,9 @@ function renderAdminProducts(products) {
 
   adminList.innerHTML = products.map((product) => `
     <div class="admin-item">
-      <strong>${product.name}</strong>
-      <span>${product.brand || 'Marca'}</span>
-      <span>${product.category}</span>
+      <strong>${escapeHTML(product.name)}</strong>
+      <span>${escapeHTML(product.brand || 'Marca')}</span>
+      <span>${escapeHTML(product.category)}</span>
       <span>${Number(product.stock || 0)} em estoque</span>
       <span>${formatPrice(Number(product.price || 0))}</span>
       <div class="admin-actions-buttons">
@@ -300,7 +308,7 @@ function renderCart() {
     return `
       <div class="cart-item">
         <div>
-          <strong>${product.name}</strong>
+          <strong>${escapeHTML(product.name)}</strong>
           <small>${item.qty} unidade(s)</small>
         </div>
         <span>${formatPrice(Number(product.price || 0) * item.qty)}</span>

@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+fl_pneus.sqlite3
+fl_pneus.sqlite3-shm
+fl_pneus.sqlite3-wal
+uploads/
+.env
