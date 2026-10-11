@@ -412,6 +412,11 @@ if (menuToggle && navMenu) {
 }
 
 async function initializeStore() {
+  if (window.location.hostname.endsWith('github.io')) {
+    renderProducts();
+    return;
+  }
+
   try {
     const response = await fetch('/api/products');
     if (!response.ok) throw new Error('Não foi possível carregar os produtos do servidor.');
