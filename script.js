@@ -134,9 +134,30 @@ function updateStockSummary(products) {
   if (lowStockCountElement) lowStockCountElement.textContent = `${lowStock} itens`;
 }
 
+function renderDailyOffer(products) {
+  const offerPrice = document.getElementById('dailyOfferPrice');
+  const offerProduct = document.getElementById('dailyOfferProduct');
+  if (!offerPrice || !offerProduct) return;
+
+  const availableProducts = products.filter((product) => Number(product.stock || 0) > 0);
+  const featuredProduct = availableProducts.find((product) =>
+    String(product.badge || '').trim().toLowerCase() === 'oferta do dia'
+  ) || availableProducts[0];
+
+  if (!featuredProduct) {
+    offerPrice.textContent = 'Sem ofertas';
+    offerProduct.textContent = 'Estoque indisponível';
+    return;
+  }
+
+  offerPrice.textContent = formatPrice(Number(featuredProduct.price || 0));
+  offerProduct.textContent = `${featuredProduct.brand || 'Pneu'} ${featuredProduct.name}`;
+}
+
 function renderProducts() {
   const products = getProducts();
   updateStockSummary(products);
+  renderDailyOffer(products);
   renderAdminProducts(products);
 
   if (!productGrid) return;
