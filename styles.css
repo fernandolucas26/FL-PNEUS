@@ -384,6 +384,25 @@ button {
   overflow-wrap: anywhere;
 }
 
+.hero-offer-credit,
+.product-image-attribution {
+  display: block;
+  margin-top: 0.55rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.hero-offer-credit[hidden] {
+  display: none;
+}
+
+.product-image-attribution {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .hero-offer-image[hidden],
 .hero-offer-fallback[hidden] {
   display: none;

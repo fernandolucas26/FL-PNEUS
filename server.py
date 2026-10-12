@@ -10,11 +10,13 @@ import sqlite3
 import threading
 import time
 import uuid
+from urllib.error import HTTPError, URLError
 from http import HTTPStatus
 from http.cookies import SimpleCookie
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qs, urlencode, unquote, urlparse
+from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = Path(os.environ.get("FL_DATA_DIR", str(ROOT)))
@@ -54,6 +56,11 @@ def image_path(image_data):
         if filename == image_data.removeprefix("/uploads/"):
             return f"/uploads/{filename}"
         raise ValueError("Caminho de imagem inválido.")
+    if image_data.startswith("https://"):
+        parsed_image = urlparse(image_data)
+        if not parsed_image.hostname or parsed_image.username or parsed_image.password or len(image_data) > 2048:
+            raise ValueError("Endereço de imagem inválido.")
+        return image_data
     if not image_data.startswith("data:"):
         raise ValueError("Formato de imagem inválido.")
 
@@ -74,7 +81,11 @@ def image_path(image_data):
 
 
 def product_from_row(row):
-    return dict(row)
+    product = dict(row)
+    product["imageCredit"] = product.pop("image_credit", "")
+    product["imageSource"] = product.pop("image_source", "")
+    product["imageLicenseUrl"] = product.pop("image_license_url", "")
+    return product
 
 
 def initialize_database():
@@ -91,7 +102,10 @@ def initialize_database():
                 stock INTEGER NOT NULL,
                 badge TEXT NOT NULL DEFAULT '',
                 description TEXT NOT NULL DEFAULT '',
-                image TEXT NOT NULL DEFAULT ''
+                image TEXT NOT NULL DEFAULT '',
+                image_credit TEXT NOT NULL DEFAULT '',
+                image_source TEXT NOT NULL DEFAULT '',
+                image_license_url TEXT NOT NULL DEFAULT ''
             );
             CREATE TABLE IF NOT EXISTS orders (
                 id TEXT PRIMARY KEY,
@@ -116,6 +130,13 @@ def initialize_database():
             );
             """
         )
+        product_columns = {row[1] for row in connection.execute("PRAGMA table_info(products)")}
+        if "image_credit" not in product_columns:
+            connection.execute("ALTER TABLE products ADD COLUMN image_credit TEXT NOT NULL DEFAULT ''")
+        if "image_source" not in product_columns:
+            connection.execute("ALTER TABLE products ADD COLUMN image_source TEXT NOT NULL DEFAULT ''")
+        if "image_license_url" not in product_columns:
+            connection.execute("ALTER TABLE products ADD COLUMN image_license_url TEXT NOT NULL DEFAULT ''")
         if connection.execute("SELECT COUNT(*) FROM products").fetchone()[0] == 0:
             connection.executemany(
                 "INSERT INTO products (id, name, brand, category, price, stock, badge, description) VALUES (:id, :name, :brand, :category, :price, :stock, :badge, :description)",
@@ -238,6 +259,74 @@ class StoreHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
         path = unquote(parsed.path)
+
+        if path == "/api/image-search":
+            if not self.require_admin():
+                return
+            query = parse_qs(parsed.query).get("q", [""])[0].strip()
+            if not query or len(query) > 180:
+                self.send_json({"error": "Digite um modelo ou medida para buscar."}, HTTPStatus.BAD_REQUEST)
+                return
+            parameters = urlencode({
+                "q": f"{query} tire",
+                "page_size": 12,
+                "license_type": "commercial",
+                "category": "photograph",
+            })
+            request = Request(
+                f"https://api.openverse.org/v1/images/?{parameters}",
+                headers={"User-Agent": "FLPneus/1.0 image search"},
+            )
+            try:
+                with urlopen(request, timeout=12) as response:
+                    payload = json.load(response)
+                used_fallback = False
+                if not payload.get("results"):
+                    fallback_parameters = urlencode({
+                        "q": "car tire close up",
+                        "page_size": 20,
+                        "license_type": "commercial",
+                        "category": "photograph",
+                    })
+                    fallback_request = Request(
+                        f"https://api.openverse.org/v1/images/?{fallback_parameters}",
+                        headers={"User-Agent": "FLPneus/1.0 image search"},
+                    )
+                    with urlopen(fallback_request, timeout=12) as response:
+                        payload = json.load(response)
+                    used_fallback = True
+                results = []
+                for result in payload.get("results", []):
+                    searchable_text = str(result.get("title", ""))
+                    if used_fallback and not re.search(r"\b(tires?|tyres?|pneus?)\b", searchable_text, re.IGNORECASE):
+                        continue
+                    if not used_fallback:
+                        searchable_text += " " + " ".join(str(tag.get("name", "")) for tag in result.get("tags", []))
+                    if not re.search(r"\b(tires?|tyres?|pneus?)\b", searchable_text, re.IGNORECASE):
+                        continue
+                    image_url = result.get("url", "")
+                    parsed_image_url = urlparse(image_url)
+                    if parsed_image_url.scheme != "https" or not parsed_image_url.hostname:
+                        continue
+                    source_url = result.get("foreign_landing_url", "")
+                    if urlparse(source_url).scheme != "https":
+                        source_url = ""
+                    results.append({
+                        "title": str(result.get("title") or "Foto de pneu")[:180],
+                        "creator": str(result.get("creator") or "Autor não informado")[:120],
+                        "image": image_url,
+                        "thumbnail": result.get("thumbnail", ""),
+                        "license": str(result.get("license") or "Licença não informada"),
+                        "licenseUrl": result.get("license_url", "") if urlparse(result.get("license_url", "")).scheme == "https" else "",
+                        "sourceUrl": source_url,
+                    })
+                self.send_json({"results": results, "query": query, "fallback": used_fallback})
+            except HTTPError as error:
+                status = HTTPStatus.TOO_MANY_REQUESTS if error.code == 429 else HTTPStatus.BAD_GATEWAY
+                self.send_json({"error": "A busca de imagens está temporariamente indisponível."}, status)
+            except (URLError, TimeoutError, json.JSONDecodeError) as error:
+                self.send_json({"error": "Não foi possível conectar à busca de imagens agora."}, HTTPStatus.BAD_GATEWAY)
+            return
 
         if path == "/api/products":
             with connect_db() as connection:
@@ -370,20 +459,28 @@ class StoreHandler(SimpleHTTPRequestHandler):
             raise ValueError("Preencha corretamente os dados do pneu.")
 
         image = image_path(str(data.get("image", "")))
-        values = (name, brand, category, price, stock, str(data.get("badge", "Novo")), str(data.get("description", "Produto cadastrado pela loja.")), image)
+        image_credit = str(data.get("imageCredit", ""))[:500]
+        image_source = str(data.get("imageSource", ""))[:2048]
+        image_license_url = str(data.get("imageLicenseUrl", ""))[:2048]
+        if image_source and urlparse(image_source).scheme != "https":
+            raise ValueError("A origem da foto deve usar HTTPS.")
+        if image_license_url and urlparse(image_license_url).scheme != "https":
+            raise ValueError("O link da licença deve usar HTTPS.")
+        values = (name, brand, category, price, stock, str(data.get("badge", "Novo")), str(data.get("description", "Produto cadastrado pela loja.")), image, image_credit, image_source, image_license_url)
         product_id = data.get("id")
         if product_id is not None:
             connection.execute(
-                """INSERT INTO products (id, name, brand, category, price, stock, badge, description, image)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """INSERT INTO products (id, name, brand, category, price, stock, badge, description, image, image_credit, image_source, image_license_url)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET name=excluded.name, brand=excluded.brand, category=excluded.category,
-                price=excluded.price, stock=excluded.stock, badge=excluded.badge, description=excluded.description, image=excluded.image""",
+                price=excluded.price, stock=excluded.stock, badge=excluded.badge, description=excluded.description, image=excluded.image,
+                image_credit=excluded.image_credit, image_source=excluded.image_source, image_license_url=excluded.image_license_url""",
                 (int(product_id), *values),
             )
             return int(product_id)
 
         cursor = connection.execute(
-            "INSERT INTO products (name, brand, category, price, stock, badge, description, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO products (name, brand, category, price, stock, badge, description, image, image_credit, image_source, image_license_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             values,
         )
         return cursor.lastrowid

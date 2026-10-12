@@ -35,9 +35,17 @@ const loginStatus = document.getElementById('loginStatus');
 const imageInput = document.getElementById('productImage');
 const imagePreview = document.getElementById('imagePreview');
 const imagePreviewWrap = document.getElementById('imagePreviewWrap');
+const imageCreditInput = document.getElementById('productImageCredit');
+const imageSourceInput = document.getElementById('productImageSource');
+const imageLicenseUrlInput = document.getElementById('productImageLicenseUrl');
+const imageSearchInput = document.getElementById('imageSearchInput');
+const imageSearchButton = document.getElementById('searchImagesButton');
+const imageSearchStatus = document.getElementById('imageSearchStatus');
+const imageSearchResults = document.getElementById('imageSearchResults');
 let editingId = null;
 let selectedImage = '';
 let productsCache = [];
+let imageSearchMatches = [];
 
 if (loginStatus) {
   loginStatus.textContent = 'Logado como administrador';
@@ -83,7 +91,11 @@ const renderInventory = () => {
       form.elements.stock.value = product.stock;
       form.elements.badge.value = product.badge || '';
       selectedImage = product.image || '';
-      updateImagePreview(selectedImage);
+      imageCreditInput.value = product.imageCredit || '';
+      imageSourceInput.value = product.imageSource || '';
+      imageLicenseUrlInput.value = product.imageLicenseUrl || '';
+      imageSearchInput.value = product.name;
+      updateImagePreview(selectedImage, product.imageCredit || '');
       submitButton.textContent = 'Atualizar pneu';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
@@ -102,17 +114,91 @@ const renderInventory = () => {
   });
 };
 
-const updateImagePreview = (image) => {
+const updateImagePreview = (image, credit = '') => {
   if (!imagePreview || !imagePreviewWrap) return;
   imagePreview.src = image || '';
   imagePreviewWrap.hidden = !image;
+  const creditElement = document.getElementById('imageCreditPreview');
+  if (creditElement) creditElement.textContent = credit ? `Crédito: ${credit}` : '';
 };
+
+const renderImageSearchResults = () => {
+  imageSearchResults.innerHTML = imageSearchMatches.map((result, index) => `
+    <article class="image-search-card">
+      <img src="${escapeHTML(result.thumbnail || result.image)}" alt="" loading="lazy" />
+      <div class="image-search-card-copy">
+        <strong>${escapeHTML(result.title)}</strong>
+        <span>${escapeHTML(result.creator)} · ${escapeHTML(result.license)}</span>
+        <a href="${escapeHTML(result.sourceUrl)}" target="_blank" rel="noreferrer">Ver origem</a>
+        ${result.licenseUrl ? `<a href="${escapeHTML(result.licenseUrl)}" target="_blank" rel="noreferrer">Ver licença</a>` : ''}
+        <button type="button" class="admin-btn edit image-select-button" data-image-index="${index}">Usar esta foto</button>
+      </div>
+    </article>
+  `).join('');
+
+  imageSearchResults.querySelectorAll('.image-select-button').forEach((button) => {
+    button.addEventListener('click', () => {
+      const result = imageSearchMatches[Number(button.dataset.imageIndex)];
+      if (!result) return;
+
+      selectedImage = result.image;
+      imageInput.value = '';
+      imageCreditInput.value = `${result.title} — ${result.creator} (${result.license})`;
+      imageSourceInput.value = result.sourceUrl;
+      imageLicenseUrlInput.value = result.licenseUrl || '';
+      updateImagePreview(selectedImage, imageCreditInput.value);
+      imageSearchStatus.textContent = 'Foto selecionada. Confira a imagem e a licença antes de salvar.';
+    });
+  });
+};
+
+const searchProductImages = async () => {
+  const query = String(imageSearchInput.value || form.elements.name.value || '').trim();
+  if (!query) {
+    imageSearchStatus.textContent = 'Digite uma medida ou modelo para buscar fotos.';
+    return;
+  }
+
+  imageSearchButton.disabled = true;
+  imageSearchStatus.textContent = 'Buscando fotos abertas...';
+  imageSearchResults.innerHTML = '';
+
+  try {
+    const response = await fetch(`/api/image-search?q=${encodeURIComponent(query)}`);
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Falha ao buscar fotos.');
+    imageSearchMatches = result.results || [];
+    if (!imageSearchMatches.length) {
+      imageSearchStatus.textContent = 'Nenhuma foto encontrada. Tente buscar pela marca ou por termos mais gerais, como “pneu carro”.';
+      return;
+    }
+    imageSearchStatus.textContent = result.fallback
+      ? `Não achamos a medida exata. Estas ${imageSearchMatches.length} fotos genéricas de pneus/rodas são sugestões; confira se a imagem corresponde ao produto.`
+      : `${imageSearchMatches.length} sugestões. Confirme se a foto corresponde ao modelo digitado.`;
+    renderImageSearchResults();
+  } catch (error) {
+    imageSearchStatus.textContent = error.message || 'Não foi possível buscar fotos agora.';
+  } finally {
+    imageSearchButton.disabled = false;
+  }
+};
+
+imageSearchButton.addEventListener('click', searchProductImages);
+imageSearchInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    searchProductImages();
+  }
+});
 
 if (imageInput) {
   imageInput.addEventListener('change', () => {
     const file = imageInput.files && imageInput.files[0];
     if (!file) {
       selectedImage = '';
+      imageCreditInput.value = '';
+      imageSourceInput.value = '';
+      imageLicenseUrlInput.value = '';
       updateImagePreview('');
       return;
     }
@@ -132,6 +218,9 @@ if (imageInput) {
     const reader = new FileReader();
     reader.addEventListener('load', () => {
       selectedImage = String(reader.result || '');
+      imageCreditInput.value = '';
+      imageSourceInput.value = '';
+      imageLicenseUrlInput.value = '';
       updateImagePreview(selectedImage);
     });
     reader.readAsDataURL(file);
@@ -200,6 +289,9 @@ form.addEventListener('submit', async (event) => {
     stock: Number(formData.get('stock') || 0),
     badge: String(formData.get('badge') || 'Novo'),
     image: selectedImage || (editingId !== null ? productsCache.find((item) => item.id === editingId)?.image || '' : ''),
+    imageCredit: String(formData.get('imageCredit') || '').trim(),
+    imageSource: String(formData.get('imageSource') || '').trim(),
+    imageLicenseUrl: String(formData.get('imageLicenseUrl') || '').trim(),
     description: 'Produto cadastrado pela loja.'
   };
 
@@ -219,6 +311,9 @@ form.addEventListener('submit', async (event) => {
     form.reset();
     selectedImage = '';
     updateImagePreview('');
+    imageSearchStatus.textContent = '';
+    imageSearchResults.innerHTML = '';
+    imageSearchMatches = [];
     await loadAdminData();
   } catch (error) {
     alert(error.message);
@@ -230,6 +325,9 @@ resetButton.addEventListener('click', () => {
   submitButton.textContent = 'Salvar pneu';
   form.reset();
   selectedImage = '';
+  imageSearchStatus.textContent = '';
+  imageSearchResults.innerHTML = '';
+  imageSearchMatches = [];
   updateImagePreview('');
 });
 

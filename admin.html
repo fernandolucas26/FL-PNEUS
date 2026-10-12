@@ -79,9 +79,27 @@
                     <input type="file" name="image" id="productImage" accept="image/*" />
                   </label>
 
+                  <div class="image-search full-width">
+                    <div class="image-search-controls">
+                      <label>
+                        Buscar foto por modelo ou medida
+                        <input type="search" id="imageSearchInput" placeholder="Ex: 205/55 R16" />
+                      </label>
+                      <button type="button" class="btn btn-secondary" id="searchImagesButton">Buscar fotos</button>
+                    </div>
+                    <p class="image-search-note">Sugestões de imagens abertas. Confira se a foto corresponde ao pneu antes de selecionar.</p>
+                    <div id="imageSearchStatus" class="image-search-status" aria-live="polite"></div>
+                    <div id="imageSearchResults" class="image-search-results"></div>
+                  </div>
+
                   <div class="image-preview-wrap full-width" id="imagePreviewWrap" hidden>
                     <img id="imagePreview" class="admin-image-preview" alt="Prévia da foto do pneu" />
+                    <p id="imageCreditPreview" class="image-credit-preview"></p>
                   </div>
+
+                  <input type="hidden" name="imageCredit" id="productImageCredit" />
+                  <input type="hidden" name="imageSource" id="productImageSource" />
+                  <input type="hidden" name="imageLicenseUrl" id="productImageLicenseUrl" />
 
                   <label class="full-width">
                     Destaque

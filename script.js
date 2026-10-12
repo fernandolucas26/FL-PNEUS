@@ -137,11 +137,13 @@ function updateStockSummary(products) {
 function renderDailyOffer(products) {
   const offerPrice = document.getElementById('dailyOfferPrice');
   const offerProduct = document.getElementById('dailyOfferProduct');
+  const offerCredit = document.getElementById('dailyOfferCredit');
+  const offerLicense = document.getElementById('dailyOfferLicense');
   const offerImage = document.getElementById('dailyOfferImage');
   const offerBackdrop = document.getElementById('dailyOfferBackdrop');
   const tireRing = document.querySelector('.tire-ring');
   const offerFallback = document.getElementById('dailyOfferFallback');
-  if (!offerPrice || !offerProduct || !offerImage || !offerBackdrop || !tireRing || !offerFallback) return;
+  if (!offerPrice || !offerProduct || !offerCredit || !offerLicense || !offerImage || !offerBackdrop || !tireRing || !offerFallback) return;
 
   const availableProducts = products.filter((product) => Number(product.stock || 0) > 0);
   const featuredProduct = availableProducts.find((product) =>
@@ -151,6 +153,8 @@ function renderDailyOffer(products) {
   if (!featuredProduct) {
     offerPrice.textContent = 'Sem ofertas';
     offerProduct.textContent = 'Estoque indisponível';
+    offerCredit.hidden = true;
+    offerLicense.hidden = true;
     offerImage.hidden = true;
     offerBackdrop.hidden = true;
     tireRing.hidden = false;
@@ -160,6 +164,11 @@ function renderDailyOffer(products) {
 
   offerPrice.textContent = formatPrice(Number(featuredProduct.price || 0));
   offerProduct.textContent = `${featuredProduct.brand || 'Pneu'} ${featuredProduct.name}`;
+  offerCredit.textContent = featuredProduct.imageCredit ? `Crédito da foto: ${featuredProduct.imageCredit}` : '';
+  offerCredit.href = featuredProduct.imageSource || '#';
+  offerCredit.hidden = !featuredProduct.imageCredit || !featuredProduct.imageSource;
+  offerLicense.href = featuredProduct.imageLicenseUrl || '#';
+  offerLicense.hidden = !featuredProduct.imageLicenseUrl;
 
   if (!featuredProduct.image) {
     offerImage.removeAttribute('src');
@@ -231,6 +240,9 @@ function renderProducts() {
           <h3>${escapeHTML(product.name)}</h3>
           <span class="product-brand">${escapeHTML(product.brand || 'Marca')}</span>
           <p>${escapeHTML(product.description || 'Pneu com excelente desempenho e durabilidade.')}</p>
+          ${product.imageCredit && product.imageSource
+            ? `<div class="product-image-attribution"><a href="${escapeHTML(product.imageSource)}" target="_blank" rel="noreferrer">Foto: ${escapeHTML(product.imageCredit)}</a>${product.imageLicenseUrl ? ` · <a href="${escapeHTML(product.imageLicenseUrl)}" target="_blank" rel="noreferrer">Licença</a>` : ''}</div>`
+            : ''}
           <div class="product-meta">
             <span class="stars">★★★★★</span>
             <span class="price">${formatPrice(Number(product.price || 0))}</span>
