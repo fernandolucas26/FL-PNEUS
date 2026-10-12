@@ -137,7 +137,9 @@ function updateStockSummary(products) {
 function renderDailyOffer(products) {
   const offerPrice = document.getElementById('dailyOfferPrice');
   const offerProduct = document.getElementById('dailyOfferProduct');
-  if (!offerPrice || !offerProduct) return;
+  const offerImage = document.getElementById('dailyOfferImage');
+  const offerFallback = document.getElementById('dailyOfferFallback');
+  if (!offerPrice || !offerProduct || !offerImage || !offerFallback) return;
 
   const availableProducts = products.filter((product) => Number(product.stock || 0) > 0);
   const featuredProduct = availableProducts.find((product) =>
@@ -147,11 +149,34 @@ function renderDailyOffer(products) {
   if (!featuredProduct) {
     offerPrice.textContent = 'Sem ofertas';
     offerProduct.textContent = 'Estoque indisponível';
+    offerImage.hidden = true;
+    offerFallback.hidden = false;
     return;
   }
 
   offerPrice.textContent = formatPrice(Number(featuredProduct.price || 0));
   offerProduct.textContent = `${featuredProduct.brand || 'Pneu'} ${featuredProduct.name}`;
+
+  if (!featuredProduct.image) {
+    offerImage.removeAttribute('src');
+    offerImage.alt = '';
+    offerImage.hidden = true;
+    offerFallback.hidden = false;
+    return;
+  }
+
+  offerImage.hidden = true;
+  offerFallback.hidden = false;
+  offerImage.alt = `Foto do pneu ${featuredProduct.name}`;
+  offerImage.onload = () => {
+    offerImage.hidden = false;
+    offerFallback.hidden = true;
+  };
+  offerImage.onerror = () => {
+    offerImage.hidden = true;
+    offerFallback.hidden = false;
+  };
+  offerImage.src = featuredProduct.image;
 }
 
 function renderProducts() {

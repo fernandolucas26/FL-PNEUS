@@ -77,13 +77,21 @@
             </div>
           </div>
 
-          <div class="hero-visual" aria-hidden="true">
+          <div class="hero-visual">
             <div class="tire-scene">
               <div class="tire-ring"></div>
               <div class="hero-card">
                 <small>Oferta do dia</small>
-                <strong id="dailyOfferPrice">Carregando...</strong>
-                <span id="dailyOfferProduct">Consulte nossos pneus</span>
+                <div class="hero-offer-row">
+                  <div class="hero-offer-image-wrap">
+                    <img id="dailyOfferImage" class="hero-offer-image" alt="" hidden />
+                    <div id="dailyOfferFallback" class="hero-offer-fallback" aria-hidden="true"></div>
+                  </div>
+                  <div class="hero-offer-details">
+                    <strong id="dailyOfferPrice">Carregando...</strong>
+                    <span id="dailyOfferProduct">Consulte nossos pneus</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
