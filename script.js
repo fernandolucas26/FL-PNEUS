@@ -138,8 +138,10 @@ function renderDailyOffer(products) {
   const offerPrice = document.getElementById('dailyOfferPrice');
   const offerProduct = document.getElementById('dailyOfferProduct');
   const offerImage = document.getElementById('dailyOfferImage');
+  const offerBackdrop = document.getElementById('dailyOfferBackdrop');
+  const tireRing = document.querySelector('.tire-ring');
   const offerFallback = document.getElementById('dailyOfferFallback');
-  if (!offerPrice || !offerProduct || !offerImage || !offerFallback) return;
+  if (!offerPrice || !offerProduct || !offerImage || !offerBackdrop || !tireRing || !offerFallback) return;
 
   const availableProducts = products.filter((product) => Number(product.stock || 0) > 0);
   const featuredProduct = availableProducts.find((product) =>
@@ -150,6 +152,8 @@ function renderDailyOffer(products) {
     offerPrice.textContent = 'Sem ofertas';
     offerProduct.textContent = 'Estoque indisponível';
     offerImage.hidden = true;
+    offerBackdrop.hidden = true;
+    tireRing.hidden = false;
     offerFallback.hidden = false;
     return;
   }
@@ -161,11 +165,16 @@ function renderDailyOffer(products) {
     offerImage.removeAttribute('src');
     offerImage.alt = '';
     offerImage.hidden = true;
+    offerBackdrop.removeAttribute('src');
+    offerBackdrop.hidden = true;
+    tireRing.hidden = false;
     offerFallback.hidden = false;
     return;
   }
 
   offerImage.hidden = true;
+  offerBackdrop.hidden = true;
+  tireRing.hidden = false;
   offerFallback.hidden = false;
   offerImage.alt = `Foto do pneu ${featuredProduct.name}`;
   offerImage.onload = () => {
@@ -176,7 +185,17 @@ function renderDailyOffer(products) {
     offerImage.hidden = true;
     offerFallback.hidden = false;
   };
+  offerBackdrop.alt = `Foto do pneu ${featuredProduct.name}`;
+  offerBackdrop.onload = () => {
+    offerBackdrop.hidden = false;
+    tireRing.hidden = true;
+  };
+  offerBackdrop.onerror = () => {
+    offerBackdrop.hidden = true;
+    tireRing.hidden = false;
+  };
   offerImage.src = featuredProduct.image;
+  offerBackdrop.src = featuredProduct.image;
 }
 
 function renderProducts() {
